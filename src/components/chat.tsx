@@ -9,14 +9,47 @@ export default function Chat() {
       api: "/api/chat",
     });
 
+  // 過去のチャット履歴を読み込み
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      try {
+        const response = await fetch('/api/chat/history');
+        const data = await response.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        }
+      } catch (error) {
+        console.error('履歴の読み込みに失敗しました:', error);
+      }
+    };
+
+    loadChatHistory();
+  }, [setMessages]);
+
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto p-4 bg-white">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">よしよしエージェント</h1>
+        {messages.length > 0 && (
+          <button
+            onClick={async () => {
+              try {
+                await fetch('/api/chat/clear', { method: 'DELETE' });
+                setMessages([]);
+              } catch (error) {
+                console.error('履歴のクリアに失敗しました:', error);
+              }
+            }}
+            className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+          >
+            履歴をクリア
+          </button>
+        )}
+      </div>
+      
       <div className="flex-1 overflow-y-auto mb-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-700 mt-8">
-            <h2 className="text-2xl font-bold mb-2 text-gray-800">
-              よしよしエージェント
-            </h2>
             <p>意見を送信して肯定してもらいましょう！</p>
           </div>
         ) : (
