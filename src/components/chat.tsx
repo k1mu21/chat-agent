@@ -1,17 +1,12 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
-
-const FIXED_THREAD_ID = "default-chat-thread";
+import { useEffect } from "react";
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } =
     useChat({
       api: "/api/chat",
-      body: {
-        threadId: FIXED_THREAD_ID,
-      },
     });
 
   return (
@@ -20,9 +15,9 @@ export default function Chat() {
         {messages.length === 0 ? (
           <div className="text-center text-gray-700 mt-8">
             <h2 className="text-2xl font-bold mb-2 text-gray-800">
-              コードレビューエージェント
+              よしよしエージェント
             </h2>
-            <p>コードを送信してレビューを受けましょう！</p>
+            <p>意見を送信して肯定してもらいましょう！</p>
           </div>
         ) : (
           messages.map((message) => (
@@ -55,7 +50,7 @@ export default function Chat() {
         <input
           value={input}
           onChange={handleInputChange}
-          placeholder="コードやメッセージを入力してください..."
+          placeholder="メッセージを入力してください..."
           className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
           disabled={isLoading}
         />
