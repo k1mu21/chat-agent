@@ -15,12 +15,18 @@ export async function POST(req: Request) {
     const agentId = "friendAgent";
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD形式
 
+    // UIMessageからテキストコンテンツを抽出
+    const userContent = userMessage.parts
+      ?.filter((part: any) => part.type === 'text')
+      .map((part: any) => part.text)
+      .join('') || '';
+
     // ユーザーメッセージをmem0に保存
     try {
       const memoryMessages = [
         {
-          role: userMessage.role || "user",
-          content: userMessage.content,
+          role: "user" as const,
+          content: userContent,
         },
       ];
 
@@ -57,7 +63,7 @@ export async function POST(req: Request) {
     }
 
     // 長期記憶から関連する記憶を検索
-    const longTermResult = await mem0Client.search(userMessage.content, {
+    const longTermResult = await mem0Client.search(userContent, {
       user_id: userId,
       filters: { user_id: userId, agent_id: agentId },
       top_k: 30,
@@ -96,21 +102,30 @@ export async function POST(req: Request) {
       .filter((memory: string) => memory !== undefined)
       .join("\n");
 
-    // エージェントからレスポンスを取得
-    const stream = await agreementAgent.stream([userMessage], {
+    // エージェントからレスポンスを取得（AI SDK v5対応）
+    const streamResult = await agreementAgent.stream([userMessage], {
       memory: {
         thread: "default",
         resource: userId,
       },
       context: [
-        { role: "system", content: longTermMemoryStr },
-        { role: "system", content: shortTermMemoryStr },
+        { role: "system" as const, content: longTermMemoryStr },
+        { role: "system" as const, content: shortTermMemoryStr },
       ],
     });
 
-    return stream.toDataStreamResponse();
+    // AI SDK v5互換のUI Messageストリームとして返す
+    return streamResult.aisdk.v5.toUIMessageStreamResponse();
   } catch (error) {
-    console.error("Chat API error:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return new Response(
+      JSON.stringify({ 
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error"
+      }), 
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }

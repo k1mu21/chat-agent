@@ -9,16 +9,21 @@ export async function GET() {
     }
 
     // route.tsと同じthread/resourceIDを使用
-    const memory = agreementAgent.getMemory();
-    const result = await memory?.query({
-      threadId: "default",
-      resourceId: "default-user",
-    });
+    const memory = await agreementAgent.getMemory();
+    if (!memory) {
+      throw new Error("Memory not found");
+    }
 
-    // UIMessagesを使用してチャット履歴を取得
-    const messages = result?.uiMessages || [];
+    // スレッドが存在するか確認してから取得
+      const result = await memory.query({
+        threadId: "default",
+        resourceId: "default-user",
+      });
 
-    return Response.json({ messages });
+      // UIMessagesを使用してチャット履歴を取得
+      const messages = result?.uiMessages || [];
+
+      return Response.json({ messages });
   } catch (error) {
     console.error("Chat history API error:", error);
     return Response.json({ messages: [] });

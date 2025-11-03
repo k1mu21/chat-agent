@@ -9,7 +9,11 @@ export async function DELETE() {
     }
 
     // route.tsと同じthread/resourceIDを使用してメモリをクリア
-    const memory = agreementAgent.getMemory();
+    const memory = await agreementAgent.getMemory();
+    if (!memory) {
+      throw new Error("Memory not found");
+    }
+    
     await memory?.deleteThread("default");
 
     return Response.json({ success: true });

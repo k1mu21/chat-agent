@@ -18,7 +18,7 @@ export const AgreementAgent: Agent = new Agent({
   可能な限り具体的な補助金名、概要、申請期限、リンクなどの情報を提供してください。
   ユーザーが追加情報を求めた場合は、適切に対応してください。
 `,
-  model: openai('GPT-5-nano'),
+  model: openai('gpt-5-nano'),
   tools: {
     getSubsidiesListTool,
     getSubsidyDetailTool,

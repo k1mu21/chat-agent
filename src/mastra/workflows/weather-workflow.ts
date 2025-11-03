@@ -1,5 +1,5 @@
 import { createStep, createWorkflow } from '@mastra/core/workflows';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 const forecastSchema = z.object({
   date: z.string(),

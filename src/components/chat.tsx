@@ -1,13 +1,27 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { DefaultChatTransport } from 'ai';
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, setMessages, status } =
+  const [input, setInput] = useState('');
+  const { messages, sendMessage, setMessages, status } =
     useChat({
-      api: "/api/chat",
+      transport: new DefaultChatTransport({
+        api: "/api/chat",
+      })
     });
+
+    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    sendMessage({ 
+      role: 'user',
+      parts: [{ type: 'text', text: input }]
+    });
+    setInput('');
+  };
+
 
   // 過去のチャット履歴を読み込み
   useEffect(() => {
@@ -66,7 +80,10 @@ export default function Chat() {
                 {message.role === "user" ? "あなた" : "エージェント"}
               </div>
               <div className="whitespace-pre-wrap text-gray-800">
-                {message.content}
+                {message.parts
+                  .filter((part) => part.type === 'text')
+                  .map((part) => part.text)
+                  .join('')}
               </div>
             </div>
           ))
@@ -82,7 +99,7 @@ export default function Chat() {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           value={input}
-          onChange={handleInputChange}
+          onChange={e => setInput(e.target.value)}
           placeholder="メッセージを入力してください..."
           className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
           disabled={status === "streaming" || status === "submitted"}

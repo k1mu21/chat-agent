@@ -60,17 +60,13 @@ export const getSubsidiesListTool = createTool({
     keyword: z.string()
       .min(2, "検索キーワードは2文字以上で入力してください")
       .max(255, "検索キーワードは255文字以内で入力してください")
-      .describe("検索キーワード（2-255文字）")
-      .default("事業"),
+      .describe("検索キーワード（2-255文字）"),
     sort: z.enum(["created_date", "acceptance_start_datetime", "acceptance_end_datetime"])
-      .describe("ソート基準（作成日、受付開始日時、受付終了日時）")
-      .default("created_date"),
+      .describe("ソート基準（作成日、受付開始日時、受付終了日時）"),
     order: z.enum(["ASC", "DESC"])
-      .describe("ソート順序（昇順、降順）")
-      .default("DESC"),
+      .describe("ソート順序（昇順、降順）"),
     acceptance: z.enum(["0", "1"])
-      .describe("受付状況（0：全て、1：受付中のみ）")
-      .default("1"),
+      .describe("受付状況（0：全て、1：受付中のみ）"),
     use_purpose: z.string()
       .max(255, "利用目的は255文字以内で入力してください")
       .optional()
@@ -108,14 +104,20 @@ export const getSubsidiesListTool = createTool({
   }),
   execute: async ({ context }) => {
     try {
+      // デフォルト値を設定
+      const keyword = context.keyword || "事業";
+      const sort = context.sort || "created_date";
+      const order = context.order || "DESC";
+      const acceptance = context.acceptance || "1";
+      
       // URLパラメータを構築
       const searchParams = new URLSearchParams();
       
       // 必須パラメータ
-      searchParams.append("keyword", context.keyword);
-      searchParams.append("sort", context.sort);
-      searchParams.append("order", context.order);
-      searchParams.append("acceptance", context.acceptance);
+      searchParams.append("keyword", keyword);
+      searchParams.append("sort", sort);
+      searchParams.append("order", order);
+      searchParams.append("acceptance", acceptance);
       
       // オプションパラメータ（値が存在する場合のみ追加）
       if (context.use_purpose) {
@@ -248,8 +250,8 @@ export const searchSubsidiesTool = createTool({
   id: "jgrants-search-subsidies",
   description: "条件を指定して補助金を検索します（簡単インターフェース）",
   inputSchema: z.object({
-    searchQuery: z.string().default("事業").describe("検索したい内容やキーワード"),
-    onlyActive: z.boolean().default(true).describe("受付中の補助金のみを検索するか"),
+    searchQuery: z.string().describe("検索したい内容やキーワード"),
+    onlyActive: z.boolean().describe("受付中の補助金のみを検索するか"),
     industry: z.string().optional().describe("対象業種"),
     area: z.string().optional().describe("対象地域")
   }),
@@ -272,13 +274,17 @@ export const searchSubsidiesTool = createTool({
     message: z.string()
   }),
   execute: async ({ context }) => {
+    // デフォルト値を設定
+    const searchQuery = context.searchQuery || "事業";
+    const onlyActive = context.onlyActive ?? true;
+    
     // ヘルパーツールから基本の検索関数を呼び出し
     const searchParams = new URLSearchParams();
     
-    searchParams.append("keyword", context.searchQuery);
+    searchParams.append("keyword", searchQuery);
     searchParams.append("sort", "acceptance_start_datetime");
     searchParams.append("order", "DESC");
-    searchParams.append("acceptance", context.onlyActive ? "1" : "0");
+    searchParams.append("acceptance", onlyActive ? "1" : "0");
     
     if (context.industry) {
       searchParams.append("industry", context.industry);
