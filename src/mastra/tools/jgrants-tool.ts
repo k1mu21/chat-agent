@@ -150,11 +150,11 @@ export const getSubsidiesListTool = createTool({
       const data = await response.json() as SubsidyListResponse;
       return {
         success: true,
-        total_count: data.total_count,
-        page: data.page,
-        limit: data.limit,
-        subsidies: data.result,
-        message: `${data.total_count}件中${data.result.length}件の補助金情報を取得しました（ページ${data.page}/${Math.ceil(data.total_count / data.limit)}）`
+        total_count: data.total_count ?? 0,
+        page: data.page ?? 1,
+        limit: data.limit ?? 10,
+        subsidies: data.result ?? [],
+        message: `${data.total_count ?? 0}件中${(data.result ?? []).length}件の補助金情報を取得しました（ページ${data.page ?? 1}/${Math.ceil((data.total_count ?? 0) / (data.limit ?? 10))}）`
       };
     } catch (error) {
       return {
@@ -307,13 +307,12 @@ export const searchSubsidiesTool = createTool({
       if (!response.ok) {
         throw new Error(`J-Grants API error: ${response.status} ${response.statusText}`);
       }
-
       const data = await response.json() as SubsidyListResponse;
       return {
         success: true,
-        total_count: data.total_count,
-        subsidies: data.result,
-        message: `「${context.searchQuery}」で${data.total_count}件の補助金が見つかりました（表示: ${data.result.length}件）`
+        total_count: data.total_count ?? 0,
+        subsidies: data.result ?? [],
+        message: `「${searchQuery}」で${data.total_count ?? 0}件の補助金が見つかりました（表示: ${(data.result ?? []).length}件）`
       };
     } catch (error) {
       return {

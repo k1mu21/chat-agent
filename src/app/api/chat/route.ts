@@ -21,6 +21,29 @@ export async function POST(req: Request) {
       .map((part: any) => part.text)
       .join('') || '';
 
+    // experimental_attachments から画像を含むメッセージを構築
+    const buildUserMessageWithImages = (msg: any) => {
+      const textParts = msg.parts
+        ?.filter((part: any) => part.type === 'text')
+        .map((part: any) => ({ type: 'text' as const, text: part.text })) || [];
+      
+      const imageParts = (msg.experimental_attachments || []).map(
+        ({ url, contentType }: any) => ({
+          type: 'image' as const,
+          image: url,
+          mimeType: contentType,
+        })
+      );
+
+      return {
+        role: 'user' as const,
+        content: [...textParts, ...imageParts],
+      };
+    };
+
+    // 画像付きメッセージを構築
+    const processedUserMessage = buildUserMessageWithImages(userMessage);
+
     // ユーザーメッセージをmem0に保存
     try {
       const memoryMessages = [
@@ -103,7 +126,8 @@ export async function POST(req: Request) {
       .join("\n");
 
     // エージェントからレスポンスを取得（AI SDK v5対応）
-    const streamResult = await agreementAgent.stream([userMessage], {
+    // 画像付きメッセージを送信
+    const streamResult = await agreementAgent.stream([processedUserMessage], {
       memory: {
         thread: "default",
         resource: userId,
