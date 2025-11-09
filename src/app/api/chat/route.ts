@@ -21,23 +21,25 @@ export async function POST(req: Request) {
       .map((part: any) => part.text)
       .join('') || '';
 
-    // experimental_attachments から画像を含むメッセージを構築
+    // parts から画像を含むメッセージを構築 (AI SDK 5.0形式)
     const buildUserMessageWithImages = (msg: any) => {
-      const textParts = msg.parts
-        ?.filter((part: any) => part.type === 'text')
-        .map((part: any) => ({ type: 'text' as const, text: part.text })) || [];
+      const contentParts: any[] = [];
       
-      const imageParts = (msg.experimental_attachments || []).map(
-        ({ url, contentType }: any) => ({
-          type: 'image' as const,
-          image: url,
-          mimeType: contentType,
-        })
-      );
+      for (const part of msg.parts || []) {
+        if (part.type === 'text') {
+          contentParts.push({ type: 'text' as const, text: part.text });
+        } else if (part.type === 'file' && part.mediaType?.startsWith('image/')) {
+          contentParts.push({
+            type: 'image' as const,
+            image: part.url,
+            mimeType: part.mediaType,
+          });
+        }
+      }
 
       return {
         role: 'user' as const,
-        content: [...textParts, ...imageParts],
+        content: contentParts,
       };
     };
 

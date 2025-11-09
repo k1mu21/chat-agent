@@ -62,14 +62,23 @@ export default function Chat() {
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     
-    let messageText = input;
+    const parts: any[] = [];
+    
+    if (input.trim()) {
+      parts.push({ type: 'text', text: input });
+    }
+    
     if (uploadedImageUrl) {
-      messageText += `\n[画像: ${uploadedImageUrl}]`;
+      parts.push({ 
+        type: 'file', 
+        url: uploadedImageUrl,
+        mediaType: 'image/*'
+      });
     }
     
     sendMessage({ 
       role: 'user',
-      parts: [{ type: 'text', text: messageText }]
+      parts: parts
     });
     
     setInput('');
@@ -136,30 +145,30 @@ export default function Chat() {
               <div className="font-semibold mb-2 text-gray-900">
                 {message.role === "user" ? "あなた" : "エージェント"}
               </div>
-              <div className="whitespace-pre-wrap text-gray-800">
-                {message.parts
-                  .filter((part) => part.type === 'text')
-                  .map((part) => {
-                    const text = part.text;
-                    // 画像URLを抽出して表示
-                    const imageUrlRegex = /\[画像: (https?:\/\/[^\]]+)\]/;
-                    const imageUrlMatch = imageUrlRegex.exec(text);
-                    if (imageUrlMatch) {
-                      const imageUrl = imageUrlMatch[1];
-                      const textWithoutImage = text.replace(imageUrlRegex, '').trim();
-                      return (
-                        <div key={part.text}>
-                          {textWithoutImage && <p className="mb-2">{textWithoutImage}</p>}
-                          <img 
-                            src={imageUrl} 
-                            alt="添付画像" 
-                            className="max-w-sm rounded-lg border border-gray-300 mt-2"
-                          />
-                        </div>
-                      );
-                    }
-                    return <span key={part.text}>{text}</span>;
-                  })}
+              <div className="flex flex-col gap-2">
+                {message.parts.map((part, index) => {
+                  if (part.type === 'text') {
+                    return (
+                      <div key={index} className="whitespace-pre-wrap text-gray-800">
+                        {part.text}
+                      </div>
+                    );
+                  }
+                  
+                  if (part.type === 'file' && part.mediaType?.startsWith('image/')) {
+                    return (
+                      <div key={index}>
+                        <img 
+                          src={part.url} 
+                          alt="添付画像"
+                          className="max-w-sm rounded-lg border border-gray-300"
+                        />
+                      </div>
+                    );
+                  }
+                  
+                  return null;
+                })}
               </div>
             </div>
           ))
