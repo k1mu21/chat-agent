@@ -1,5 +1,6 @@
+import { createUIMessageStream, createUIMessageStreamResponse } from 'ai';
 import { mastra } from "@/mastra";
-import { mem0Client } from "@/mastra/integrations";
+import { mem0Client, reinfoMcp } from "@/mastra/integrations";
 
 export async function POST(req: Request) {
   try {
@@ -138,10 +139,22 @@ export async function POST(req: Request) {
         { role: "system" as const, content: longTermMemoryStr },
         { role: "system" as const, content: shortTermMemoryStr },
       ],
+      toolsets: await reinfoMcp.listToolsets(),
     });
 
-    // AI SDK v5互換のUI Messageストリームとして返す
-    return streamResult.aisdk.v5.toUIMessageStreamResponse();
+    // UI Messageストリームとして返す
+    const msgId = crypto.randomUUID();
+    const stream = createUIMessageStream({
+      execute: async ({ writer }) => {
+        writer.write({ type: 'text-start', id: msgId });
+        for await (const chunk of streamResult.textStream) {
+          writer.write({ type: 'text-delta', id: msgId, delta: chunk });
+        }
+        writer.write({ type: 'text-end', id: msgId });
+      },
+      onError: () => 'エラーが発生しました',
+    });
+    return createUIMessageStreamResponse({ stream });
   } catch (error) {
     return new Response(
       JSON.stringify({ 

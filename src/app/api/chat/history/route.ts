@@ -15,13 +15,13 @@ export async function GET() {
     }
 
     // スレッドが存在するか確認してから取得
-      const result = await memory.query({
+      const result = await memory.recall({
         threadId: "default",
         resourceId: "default-user",
       });
 
-      // UIMessagesを使用してチャット履歴を取得
-      const messages = result?.uiMessages || [];
+      // チャット履歴を取得
+      const messages = result?.messages || [];
 
       return Response.json({ messages });
   } catch (error) {
