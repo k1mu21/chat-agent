@@ -20,8 +20,13 @@ export async function GET() {
         resourceId: "default-user",
       });
 
-      // チャット履歴を取得
-      const messages = result?.messages || [];
+      // MastraDBMessage → UIMessage 形式に変換（parts をトップレベルに）
+      const messages = (result?.messages || []).map((msg) => ({
+        id: msg.id,
+        role: msg.role,
+        parts: msg.content?.parts ?? [],
+        createdAt: msg.createdAt,
+      }));
 
       return Response.json({ messages });
   } catch (error) {

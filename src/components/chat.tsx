@@ -109,7 +109,7 @@ export default function Chat() {
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto p-4 bg-white">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-800">補助金検索エージェント</h1>
+        <h1 className="text-2xl font-bold text-gray-800">不動産価格情報エージェント</h1>
         {messages.length > 0 && (
           <button
             onClick={async () => {
@@ -146,7 +146,7 @@ export default function Chat() {
                 {message.role === "user" ? "あなた" : "エージェント"}
               </div>
               <div className="flex flex-col gap-2">
-                {message.parts.map((part, index) => {
+                {(message.parts ?? []).map((part, index) => {
                   if (part.type === 'text') {
                     return (
                       <div key={index} className="whitespace-pre-wrap text-gray-800">
