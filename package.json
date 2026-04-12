@@ -8,9 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "dev:mastra": "mastra dev --dir src/mastra",
-    "build:mastra": "mastra build --dir src/mastra"
+    "build:mastra": "mastra build --dir src/mastra",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
     "@ai-sdk/openai": "^3.0.49",
     "@ai-sdk/react": "^3.0.145",
     "@mastra/core": "^1.21.0",
@@ -36,7 +41,8 @@
     "mastra": "^1.3.19",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.81.1"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",
