@@ -1,6 +1,6 @@
 import { createUIMessageStream, createUIMessageStreamResponse } from 'ai';
 import { mastra } from "@/mastra";
-import { mem0Client, reinfoMcp } from "@/mastra/integrations";
+import { getMem0Client, reinfoMcp } from "@/mastra/integrations";
 
 export async function POST(req: Request) {
   try {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       ];
 
       // 長期記憶として保存
-      await mem0Client.add(memoryMessages, {
+      await getMem0Client().add(memoryMessages, {
         user_id: userId,
         agent_id: agentId,
         metadata: {
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       });
 
       // 短期記憶（今日の会話）として保存
-      await mem0Client.add(memoryMessages, {
+      await getMem0Client().add(memoryMessages, {
         user_id: userId,
         agent_id: agentId,
         metadata: {
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     }
 
     // 長期記憶から関連する記憶を検索
-    const longTermResult = await mem0Client.search(userContent, {
+    const longTermResult = await getMem0Client().search(userContent, {
       user_id: userId,
       filters: { user_id: userId, agent_id: agentId },
       top_k: 30,
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
     });
 
     // 短期記憶（今日の会話）を取得
-    const shortTermResult = await mem0Client.getAll({
+    const shortTermResult = await getMem0Client().getAll({
       user_id: userId,
       filters: {
         type: "short_term",
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
 
     // 長期記憶を文字列に変換
     const longTermMemoryStr = (longTermResult || [])
-      .map((memory) => memory.memory)
+      .map((memory: { memory?: string }) => memory.memory)
       .filter((memory): memory is string => memory !== undefined)
       .join("\n");
 
