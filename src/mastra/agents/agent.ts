@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
+import { DynamoDBStore } from '@mastra/dynamodb';
 
 export const AgreementAgent: Agent = new Agent({
   id: 'AgreementAgent',
@@ -15,9 +15,13 @@ export const AgreementAgent: Agent = new Agent({
 `,
   model: openai('gpt-5-nano'),
   memory: new Memory({
-    storage: new LibSQLStore({
-      id: 'agent-memory',
-      url: 'file:../mastra.db', // path is relative to the .mastra/output directory
+    storage: new DynamoDBStore({
+      name: 'agent-memory',
+      config: {
+        id: 'agent-memory',
+        region: process.env.AWS_REGION ?? 'ap-northeast-1',
+        tableName: process.env.DYNAMODB_TABLE_NAME ?? 'mastra-single-table',
+      },
     }),
   }),
 });
