@@ -2,10 +2,17 @@
 import { Mastra } from '@mastra/core/mastra';
 import { PinoLogger } from '@mastra/loggers';
 import { DynamoDBStore } from '@mastra/dynamodb';
+import { CloudflareDeployer } from '@mastra/deployer-cloudflare';
 import { AgreementAgent } from './agents/agent';
 
 export const mastra = new Mastra({
   agents: { AgreementAgent },
+  deployer: new CloudflareDeployer({
+    name: 'chat-agent',
+    vars: {
+      NODE_ENV: 'production',
+    },
+  }),
   storage: new DynamoDBStore({
     name: 'mastra-storage',
     config: {
