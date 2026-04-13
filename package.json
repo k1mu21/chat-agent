@@ -9,22 +9,16 @@
     "lint": "next lint",
     "dev:mastra": "mastra dev --dir src/mastra",
     "build:mastra": "mastra build --dir src/mastra",
-    "deploy": "opennextjs-cloudflare build && wrangler deploy --minify",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.49",
     "@ai-sdk/react": "^3.0.145",
     "@mastra/core": "^1.21.0",
-    "@mastra/deployer-cloudflare": "^1.1.22",
     "@mastra/dynamodb": "^1.0.3",
-    "@mastra/libsql": "^1.7.3",
     "@mastra/loggers": "^1.1.0",
     "@mastra/mcp": "^1.4.1",
     "@mastra/memory": "^1.13.0",
-    "@opennextjs/cloudflare": "^1.17.1",
     "ai": "^6.0.143",
     "mem0ai": "^2.4.5",
     "next": "^16.2.2",
@@ -44,7 +38,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "wrangler": "^4.81.1"
+    "vercel": "latest"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",
