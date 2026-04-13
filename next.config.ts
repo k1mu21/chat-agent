@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  serverExternalPackages: ["@ast-grep/napi"],
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
 
